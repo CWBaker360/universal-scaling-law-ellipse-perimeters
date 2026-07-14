@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use or discuss this work, please cite it using the metadata below."
+title: "A Universal Scaling Law for Ellipse Perimeters"
+type: article
+authors:
+  - family-names: Baker
+    given-names: Wayne
+date-released: 2026-07-14
+version: revised-preprint-v1
+repository-code: "https://github.com/CWBaker360/universal-scaling-law-ellipse-perimeters"
+url: "https://github.com/CWBaker360/universal-scaling-law-ellipse-perimeters"
+abstract: >-
+  For equal-parameter polygonal approximations of a nondegenerate ellipse,
+  the polygonal perimeter factors exactly into a universal sinc term and a
+  periodic midpoint quadrature. Analytic periodic quadrature makes the latter
+  exponentially accurate, yielding universal algebraic relative-error
+  coefficients and a fourth-order tripling correction.
+keywords:
+  - ellipse perimeter
+  - polygonal approximation
+  - sinc scaling
+  - Richardson extrapolation
+  - N-series
+  - periodic trapezoidal rule
+  - asymptotic analysis
+  - constructive geometry
+license: proprietary

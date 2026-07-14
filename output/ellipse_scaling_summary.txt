@@ -1,0 +1,6 @@
+Universal ellipse scaling-law verification
+precision_dps: 80
+raw_limit_pi2_over_6: 1.644934066848226436472415166646025189219
+corrected_limit_pi4_over_1080: 0.0901936028092615159596669747117639918979
+cases_passed: 4/4
+verification_passed: True
