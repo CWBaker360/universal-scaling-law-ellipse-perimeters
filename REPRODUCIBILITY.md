@@ -52,5 +52,6 @@ P=4a\,E\!\left(1-\frac{b^2}{a^2}\right),
 \]
 
 using `mpmath.ellipe` in its parameter convention. Polygonal perimeters are
-computed independently from the exact chord-midpoint identity proved in the
-paper.
+computed independently by summing Euclidean chord lengths between successive
+equal-parameter ellipse vertices; the sinc factorization is then checked
+against that direct chord sum.
