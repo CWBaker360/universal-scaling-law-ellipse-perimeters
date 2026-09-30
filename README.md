@@ -161,6 +161,11 @@ for arbitrary curves, parameterizations, or meshes.
     └── github_upload_checklist.md
 ```
 
-## Rights
+## Licensing
 
-Copyright © 2026 Wayne Baker. All rights reserved unless otherwise stated.
+Copyright © 2026 C. Wayne Baker.
+
+- The manuscript, LaTeX source, README, documentation, and non-code research materials are licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0).
+- The verification software in `scripts/` is licensed separately under the MIT License; see `scripts/LICENSE`.
+
+CC BY 4.0 requires appropriate attribution and indication of changes. The MIT License requires preservation of its copyright and permission notice.
