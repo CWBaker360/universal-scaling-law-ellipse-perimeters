@@ -1,14 +1,24 @@
 # License Notice
 
-Copyright © 2026 Wayne Baker. All rights reserved.
+Copyright © 2026 C. Wayne Baker.
 
-The paper, LaTeX source, verification script, output ledgers, and
-documentation are provided for reading, scholarly discussion, citation, and
-reproducibility review.
+## Manuscript and documentation
 
-No permission is granted to redistribute modified versions, republish the
-work, or use it commercially without prior written authorization from the
-copyright holder.
+Except for the software identified below, the manuscript, LaTeX source,
+README files, documentation, numerical output ledgers, and other non-code
+research materials in this repository are licensed under the
+**Creative Commons Attribution 4.0 International License (CC BY 4.0)**.
 
-Repository hosting does not place the contents in the public domain and does
-not imply an open-source license.
+Under CC BY 4.0, reuse and redistribution are permitted, including adaptation
+and commercial use, provided appropriate credit is given, a link to the
+license is supplied, and changes are indicated.
+
+License information:
+https://creativecommons.org/licenses/by/4.0/
+
+## Verification software
+
+The Python verification software in `scripts/` is licensed separately under
+the **MIT License**. See `scripts/LICENSE` for the complete license text.
+
+Nothing in these licenses places the work in the public domain.
