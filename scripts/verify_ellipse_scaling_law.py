@@ -32,9 +32,30 @@ def midpoint_speed_sum(a: mp.mpf, b: mp.mpf, n: int) -> mp.mpf:
 
 
 def polygon_perimeter(a: mp.mpf, b: mp.mpf, n: int) -> mp.mpf:
-    """Equal-parameter inscribed polygonal perimeter."""
-    midpoint = midpoint_speed_sum(a, b, n)
-    return mp.sin(mp.pi / n) / (mp.pi / n) * midpoint
+    """Direct equal-parameter inscribed polygonal perimeter.
+
+    The perimeter is computed independently from successive ellipse vertices,
+    rather than from the sinc factorization that the verification is testing.
+    """
+    if n < 3:
+        raise ValueError("n must be at least 3")
+
+    h = 2 * mp.pi / n
+    total = mp.mpf("0")
+    for j in range(n):
+        t0 = mp.mpf(j) * h
+        t1 = mp.mpf(j + 1) * h
+
+        x0 = a * mp.cos(t0)
+        y0 = b * mp.sin(t0)
+        x1 = a * mp.cos(t1)
+        y1 = b * mp.sin(t1)
+
+        dx = x1 - x0
+        dy = y1 - y0
+        total += mp.sqrt(dx * dx + dy * dy)
+
+    return total
 
 
 def corrected_perimeter(a: mp.mpf, b: mp.mpf, n: int) -> mp.mpf:
