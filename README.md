@@ -2,7 +2,7 @@
 
 **Author:** Wayne Baker  
 **Original date:** February 2026  
-**Revised:** July 14, 2026  
+**v1.2 release:** September 29, 2026  
 **Status:** Revised preprint / source and reproducibility archive
 
 This repository contains the rigorous revised paper:
@@ -147,6 +147,7 @@ for arbitrary curves, parameterizations, or meshes.
 │   └── README.md
 ├── scripts/
 │   ├── verify_ellipse_scaling_law.py
+│   ├── LICENSE
 │   └── README.md
 ├── output/
 │   ├── ellipse_scaling_verification.csv
