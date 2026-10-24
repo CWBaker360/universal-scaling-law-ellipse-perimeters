@@ -5,8 +5,8 @@ type: article
 authors:
   - family-names: Baker
     given-names: Wayne
-date-released: 2026-09-29
-version: revised-preprint-v1.2
+date-released: 2026-10-24
+version: v1.3
 repository-code: "https://github.com/CWBaker360/universal-scaling-law-ellipse-perimeters"
 url: "https://github.com/CWBaker360/universal-scaling-law-ellipse-perimeters"
 abstract: >-
@@ -22,6 +22,7 @@ keywords:
   - Richardson extrapolation
   - N-series
   - periodic trapezoidal rule
+  - conjectural Darboux asymptotics
   - asymptotic analysis
   - constructive geometry
 license: CC-BY-4.0
