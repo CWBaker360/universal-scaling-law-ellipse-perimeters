@@ -1,534 +1,930 @@
 \documentclass[11pt]{article}
 
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{lmodern}
-\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
 \usepackage{booktabs}
-\usepackage{geometry}
 \usepackage{microtype}
-\usepackage[hidelinks]{hyperref}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage[authoryear,round]{natbib}
+\usepackage{listings}
 
-\geometry{margin=1in}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
 
-\newtheorem{theorem}{Theorem}
-\newtheorem{proposition}{Proposition}
-\newtheorem{corollary}{Corollary}
-\newtheorem{remark}{Remark}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
 
 \newcommand{\sinc}{\operatorname{sinc}}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\ii}{\mathrm{i}}
+\numberwithin{equation}{section}
 
-\title{\textbf{A Universal Scaling Law for Ellipse Perimeters}}
-\author{Wayne Baker\\
-\small Independent Researcher}
-\date{February 2026; revised July 14, 2026}
+\title{Exact Chord Factorization and Universal Asymptotics\\
+for Inscribed Ellipse Polygons}
+\author{C. Wayne Baker\\
+Independent researcher}
+\date{GitHub revision v1.3 --- October 24, 2026}
 
 \begin{document}
-
 \maketitle
 
 \begin{abstract}
-Let
-\[
-\mathbf q(\theta)=(a\cos\theta,b\sin\theta),
-\qquad a\ge b>0,
-\]
-and let $P_N$ be the perimeter of the inscribed polygon obtained from $N$
-equally spaced parameter values.  We prove the exact factorization
-\[
-P_N
-=
-\sinc\!\left(\frac{\pi}{N}\right)M_N,
-\qquad
-\sinc x=\frac{\sin x}{x},
-\]
-where $M_N$ is the composite midpoint rule applied to the ellipse speed.
-Because that speed is periodic and analytic in a strip of half-width
-\[
-\rho_*=\operatorname{artanh}(b/a),
-\]
-the midpoint error is exponentially small for every fixed nondegenerate
-ellipse.  Consequently,
-\[
-P_N
-=
-P\,\sinc\!\left(\frac{\pi}{N}\right)
-+
-O(e^{-\rho N})
-\]
-for every $0<\rho<\rho_*$, and hence
-\[
-P-P_N
-=
-P\left(
-\frac{\pi^2}{6N^2}
--
-\frac{\pi^4}{120N^4}
-+
-\frac{\pi^6}{5040N^6}
--\cdots
-\right)
-+
-O(e^{-\rho N}).
-\]
-Thus the algebraic relative-error coefficients are universal: they do not
-depend on the ellipse axes.  The tripling correction
-\[
-\widehat P_N
-=
-P_{3N}+\frac{P_{3N}-P_N}{8}
-\]
-satisfies
-\[
-P-\widehat P_N
-=
-\frac{P\pi^4}{1080N^4}
-+
-O(N^{-6})
-+
-O(e^{-\rho N}),
-\]
-which gives fourth-order convergence after a single fixed-scale
-cancellation.  The eccentricity dependence enters through the exponentially
-small quadrature remainder; as $b/a\to0$, the analytic strip narrows like
-$b/a$, explaining why the asymptotic regime requires $N$ of order $a/b$ up
-to a tolerance-dependent logarithmic factor.
+For the ellipse \(q(\theta)=(a\cos\theta,b\sin\theta)\), \(a\ge b>0\), let \(P_N\) be the perimeter of the equal-parameter inscribed \(N\)-gon and let \(M_N\) be the composite midpoint approximation to the exact perimeter integral formed from the speed \(v(\theta)=(a^2\sin^2\theta+b^2\cos^2\theta)^{1/2}\). We prove the exact factorization \(P_N=\sinc(\pi/N)M_N\). For \(0<b<a\), the nearest complex zeros of the squared speed occur at imaginary distance \(\rho_*=\operatorname{artanh}(b/a)\), and Fourier aliasing gives \(M_N-P=O(e^{-\rho N})\) for every \(0<\rho<\rho_*\). It follows that, for every fixed \(r\ge1\), \((P-P_N)/P=\sum_{k=1}^{r}(-1)^{k+1}\pi^{2k}/((2k+1)!N^{2k})+O(N^{-2r-2})+O(e^{-\rho N})\). Thus all algebraic coefficients in the relative polygonal perimeter error are independent of the ellipse axes; shape enters through the exponentially small midpoint remainder and the distance to the nearest complex singularity. Dividing the polygon perimeter by the sinc factor exactly removes the full algebraic chord error, leaving only exponentially convergent midpoint quadrature. Since the speed is also $\pi$-periodic, odd numbers of vertices have a doubled exponential aliasing rate. Classical scale-three Richardson cancellation is retained for comparison with geometric N-series constructions.
 \end{abstract}
 
-\section{Introduction}
+\noindent\textit{Keywords:} ellipse perimeter; inscribed polygon; midpoint quadrature; periodic quadrature; Fourier aliasing; asymptotic error expansion.
 
-Polygonal approximation of an ellipse contains two distinct numerical
-effects.  First, replacing a smooth arc by its chord introduces a local
-chord--arc factor.  Second, sampling the varying speed of the
-parametrization introduces a periodic quadrature error.  Separating these
-effects yields a particularly simple scaling law.
+\section{Introduction and claim boundary}
 
-The central result of this paper is ellipse-specific and exact: the
-equal-parameter polygonal perimeter factors into a universal sinc term and a
-composite midpoint approximation to the exact perimeter.  Standard
-exponential convergence of periodic trapezoidal and midpoint rules then
-shows that, for every fixed $b>0$, all algebraic powers of $N^{-1}$ come from
-the sinc factor alone.
+Polygonal approximation of a smooth closed curve naturally mixes two
+effects: the geometry of replacing an arc by a chord, and the numerical
+quadrature implicit in sampling the curve.  For an ellipse sampled at
+equal parameter increments, these two effects separate exactly.
 
-This statement is narrower and stronger than a blanket claim about arbitrary
-chord constructions on arbitrary smooth curves.  It applies to the standard
-equal-parameter polygonal approximation of a nondegenerate ellipse.
+The perimeter of an ellipse has a long history of exact series,
+inequalities, and closed-form approximations.  Ivory's classical work
+gave a rapidly convergent series for rectification
+\citet{Ivory1798}; later approximation formulas include those associated
+with Peano and Ramanujan, with modern error analyses and historical
+discussion available in, for example, \citet{Villarino2006}.  These
+approaches concern approximation of the perimeter itself.  The present paper instead studies a specific equal-parameter inscribed
+polygon as a numerical perimeter approximation and identifies an exact
+factorization linking its geometric chord error to midpoint quadrature
+of the analytic speed.
 
-\section{Exact chord factorization}
+The central identity of this paper is
+\begin{equation}
+\label{eq:central}
+P_N=
+\sinc\!\left(\frac{\pi}{N}\right)M_N,
+\end{equation}
+where \(P_N\) is the equal-parameter inscribed polygon perimeter and
+\(M_N\) is the composite midpoint approximation to the perimeter
+integral.  The factor \(\sinc(\pi/N)\) is universal, whereas all
+shape dependence is contained in the midpoint sum.  Combining this
+identity with exponential convergence of periodic analytic quadrature
+shows that every algebraic coefficient in the relative polygonal
+perimeter error is independent of the ellipse axes.
 
-Let
+The analytic quadrature mechanism is classical.  Standard references
+for numerical integration include Davis and Rabinowitz
+\citet{DavisRabinowitz1984}; the exponential convergence of periodic
+trapezoidal rules for analytic functions, together with its Fourier
+and aliasing interpretation, is treated systematically by Trefethen
+and Weideman \citet{TrefethenWeideman2014}.  Related contour estimates
+for both trapezoidal and midpoint rules are given by
+Javed and Trefethen \citet{JavedTrefethen2014}; earlier general contour-based quadrature remainder analysis appears in \citet{DonaldsonElliott1972}.
+
+The contribution is therefore not a new quadrature or extrapolation
+method.  Richardson-type cancellation of algebraic error terms is
+classical.  The purpose here is to isolate the exact geometric
+factorization \eqref{eq:central}, derive its consequences, and exhibit
+the resulting universal algebraic coefficients.  Historical priority
+for the bare factorization \eqref{eq:central} is not asserted here.
+
+For a circle \(a=b=R\), the usual regular-polygon identity is
+\[
+P_N=2NR\sin\frac{\pi}{N}
+=
+2\pi R\,\sinc\!\left(\frac{\pi}{N}\right).
+\]
+The ellipse identity below may be viewed as the variable-speed analogue:
+the exact circumference \(2\pi R\) is replaced by a midpoint sampling
+of the nonconstant ellipse speed.
+
+\section{Ellipse geometry and equal-parameter polygons}
+
+Fix
+\[
+a\ge b>0
+\]
+and parametrize the ellipse by
+\begin{equation}
+\label{eq:q}
+q(\theta)=(a\cos\theta,b\sin\theta),
+\qquad 0\le\theta\le2\pi.
+\end{equation}
+Its speed is
+\begin{equation}
+\label{eq:v}
+v(\theta)
+=
+\|q'(\theta)\|
+=
+\sqrt{a^2\sin^2\theta+b^2\cos^2\theta}.
+\end{equation}
+The exact perimeter is
+\begin{equation}
+\label{eq:P}
+P=\int_0^{2\pi}v(\theta)\,\dd\theta.
+\end{equation}
+Equivalently,
+\[
+P=4a\,E\!\left(1-\frac{b^2}{a^2}\right),
+\]
+where \(E\) denotes the complete elliptic integral of the second kind
+in parameter notation.
+
+For \(N\ge2\), set
 \[
 h=\frac{2\pi}{N},
 \qquad
 \theta_j=jh,
 \qquad
-t_j=\left(j+\frac12\right)h,
-\qquad
-j=0,\ldots,N-1.
+j=0,\dots,N-1,
 \]
-Define the ellipse speed
-\[
-v(t)
+with \(\theta_N=2\pi\).  The perimeter of the equal-parameter inscribed
+polygon is
+\begin{equation}
+\label{eq:PN}
+P_N
 =
-\|\mathbf q'(t)\|
+\sum_{j=0}^{N-1}
+\|q(\theta_{j+1})-q(\theta_j)\|.
+\end{equation}
+Define also the composite midpoint approximation
+\begin{equation}
+\label{eq:MN}
+M_N
 =
-\sqrt{a^2\sin^2t+b^2\cos^2t}.
-\]
-The exact perimeter is
-\[
-P=\int_0^{2\pi}v(t)\,dt
-=4a\,E\!\left(1-\frac{b^2}{a^2}\right),
-\]
-where $E$ is the complete elliptic integral of the second kind in the
-parameter convention.
+h\sum_{j=0}^{N-1}
+v\!\left(\theta_j+\frac h2\right).
+\end{equation}
 
-\begin{theorem}[Exact polygon--midpoint identity]\label{thm:factor}
-For every integer $N\ge3$,
+\section{Exact chord factorization}
+
+\begin{theorem}[Exact chord factorization]
+\label{thm:factorization}
+For every \(a\ge b>0\) and every integer \(N\ge2\),
+\begin{equation}
+\label{eq:factorization}
+\boxed{
+P_N=
+\sinc\!\left(\frac{\pi}{N}\right)M_N.
+}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+For arbitrary real \(\theta\) and \(h\),
+\[
+\cos(\theta+h)-\cos\theta
+=
+-2\sin\!\left(\theta+\frac h2\right)\sin\frac h2
+\]
+and
+\[
+\sin(\theta+h)-\sin\theta
+=
+2\cos\!\left(\theta+\frac h2\right)\sin\frac h2.
+\]
+Hence
+\begin{align*}
+\|q(\theta+h)-q(\theta)\|^2
+&=
+4\sin^2\frac h2
+\left[
+a^2\sin^2\!\left(\theta+\frac h2\right)
++
+b^2\cos^2\!\left(\theta+\frac h2\right)
+\right] \\
+&=
+4\sin^2\frac h2\,
+v\!\left(\theta+\frac h2\right)^2.
+\end{align*}
+For \(N\ge2\), \(h=2\pi/N\) and \(\sin(h/2)\ge0\), so
+\[
+\|q(\theta+h)-q(\theta)\|
+=
+2\sin\frac h2\,
+v\!\left(\theta+\frac h2\right).
+\]
+Summing at \(\theta=\theta_j\) gives
 \[
 P_N
 =
-2\sin\!\left(\frac{\pi}{N}\right)
-\sum_{j=0}^{N-1}v(t_j).
+2\sin\frac{\pi}{N}
+\sum_{j=0}^{N-1}
+v\!\left(\theta_j+\frac{\pi}{N}\right).
 \]
-Equivalently, if
+Since
 \[
 M_N
 =
 \frac{2\pi}{N}
-\sum_{j=0}^{N-1}v(t_j)
+\sum_{j=0}^{N-1}
+v\!\left(\theta_j+\frac{\pi}{N}\right),
 \]
-is the composite midpoint rule for $P$, then
+we obtain
 \[
 P_N
 =
-\sinc\!\left(\frac{\pi}{N}\right)M_N.
+\frac{\sin(\pi/N)}{\pi/N}\,M_N.
 \]
-\end{theorem}
-
-\begin{proof}
-For one chord, the angle-difference identities give
-\[
-a\cos(\theta_j+h)-a\cos\theta_j
-=
--2a\sin t_j\sin\frac h2
-\]
-and
-\[
-b\sin(\theta_j+h)-b\sin\theta_j
-=
-2b\cos t_j\sin\frac h2.
-\]
-Therefore its length is
-\[
-\|\mathbf q(\theta_j+h)-\mathbf q(\theta_j)\|
-=
-2\sin\frac h2\,
-\sqrt{a^2\sin^2t_j+b^2\cos^2t_j}
-=
-2\sin\frac h2\,v(t_j).
-\]
-Summing over $j$ proves the first identity.  Since $h=2\pi/N$, the second
-follows by multiplying and dividing by $h$.
-\end{proof}
-
-\section{Analytic midpoint remainder}
-
-The factorization in Theorem~\ref{thm:factor} reduces the remaining problem
-to periodic quadrature.
-
-\begin{proposition}[Analytic strip]\label{prop:strip}
-Set $r=b/a$.  For $0<r\le1$, the function $v$ has a $2\pi$-periodic analytic
-continuation to every closed strip
-\[
-|\operatorname{Im}z|\le\rho<\rho_*,
-\qquad
-\rho_*=\operatorname{artanh}(r).
-\]
-\end{proposition}
-
-\begin{proof}
-The possible branch points occur at zeros of
-\[
-a^2\sin^2z+b^2\cos^2z
-=
-b^2+(a^2-b^2)\sin^2z.
-\]
-For $a>b$, the nearest zeros satisfy
-\[
-\sin z=\pm i\frac{b}{\sqrt{a^2-b^2}},
-\]
-whose distance from the real axis is
-\[
-\operatorname{arsinh}\!\left(
-\frac{b}{\sqrt{a^2-b^2}}
-\right)
-=
-\operatorname{artanh}(b/a).
-\]
-Hence a consistent analytic square-root branch exists in every smaller
-strip.  When $a=b$, the speed is constant and the assertion is immediate.
-\end{proof}
-
-\begin{proposition}[Periodic midpoint error]\label{prop:midpoint}
-For each fixed ellipse with $a\ge b>0$ and each
-$0<\rho<\rho_*$,
-\[
-M_N-P=O(e^{-\rho N}).
-\]
-\end{proposition}
-
-\begin{proof}
-The composite midpoint rule on a full period is a shifted periodic
-trapezoidal rule.  For a periodic function analytic and bounded in a strip,
-its Fourier coefficients decay exponentially, and aliasing of those
-coefficients gives an exponentially small quadrature error.  Applying this
-standard result to Proposition~\ref{prop:strip} proves the claim; see, for
-example, Trefethen and Weideman~\cite{TrefethenWeideman2014}.
-\end{proof}
-
-\section{Universal algebraic scaling law}
-
-\begin{theorem}[Ellipse perimeter scaling law]\label{thm:main}
-For any fixed ellipse $a\ge b>0$ and any $0<\rho<\rho_*$,
-\[
-P_N
-=
-P\,\sinc\!\left(\frac{\pi}{N}\right)
-+
-O(e^{-\rho N}).
-\]
-Consequently, for every fixed integer $m\ge1$,
-\[
-P_N
-=
-P\sum_{\ell=0}^{m}
-\frac{(-1)^\ell\pi^{2\ell}}
-{(2\ell+1)!\,N^{2\ell}}
-+
-O(N^{-2m-2})
-+
-O(e^{-\rho N}).
-\]
-In particular,
-\[
-P-P_N
-=
-P\left(
-\frac{\pi^2}{6N^2}
--
-\frac{\pi^4}{120N^4}
-+
-\frac{\pi^6}{5040N^6}
-\right)
-+
-O(N^{-8})
-+
-O(e^{-\rho N}).
-\]
-\end{theorem}
-
-\begin{proof}
-Combine Theorem~\ref{thm:factor} with
-Proposition~\ref{prop:midpoint}:
-\[
-P_N
-=
-\sinc\!\left(\frac{\pi}{N}\right)
-\bigl(P+O(e^{-\rho N})\bigr).
-\]
-The sinc factor is bounded and has the Taylor series
-\[
-\sinc x
-=
-\sum_{\ell=0}^{\infty}
-\frac{(-1)^\ell x^{2\ell}}{(2\ell+1)!}.
-\]
-Substitution gives the stated formulas.
 \end{proof}
 
 \begin{remark}
-The word ``universal'' refers to the algebraic \emph{relative}-error
-coefficients.  For the standard equal-parameter ellipse polygon,
-\[
-\frac{P-P_N}{P}
-\sim
-\frac{\pi^2}{6N^2},
-\]
-independently of $a$ and $b$.  The onset of this asymptotic regime is not
-uniform as $b/a\to0$.
+Theorem~\ref{thm:factorization} is exact.  No limiting argument,
+Taylor expansion, or extrapolation method enters its proof.
 \end{remark}
 
-\section{Tripling-based cancellation}
+\begin{remark}[Literature position]
+The identity is derived here directly from the standard trigonometric
+parametrization of the ellipse.  Classical ellipse-perimeter formulas
+and series, such as those discussed in
+\citep{Ivory1798,Villarino2006}, address the perimeter through elliptic
+integrals, series, inequalities, or closed-form approximations.  No
+claim of historical priority for the factorization
+\eqref{eq:factorization} is made.
+\end{remark}
 
-Define the one-step corrected perimeter
+\begin{corollary}[Exact sinc normalization and exponentially small residual]
+\label{cor:sinc}
+For $a\ge b>0$ and $N\ge2$ define the sinc-normalized perimeter
+\begin{equation}\label{eq:sinc-corrected}
+\boxed{\widetilde P_N:=\frac{P_N}{\sinc(\pi/N)}
+=\frac{\pi P_N}{N\sin(\pi/N)}=M_N.}
+\end{equation}
+For each fixed noncircular ellipse $0<b<a$ and each
+$0<\rho<\rho_*$,
+\begin{equation}\label{eq:sinc-error}
+\widetilde P_N-P=O(e^{-\rho N}).
+\end{equation}
+For a circle, $\widetilde P_N=P$ identically.
+\end{corollary}
+\begin{proof}
+The equality in \eqref{eq:sinc-corrected} follows directly from
+Theorem~\ref{thm:factorization}. Equation~\eqref{eq:sinc-error}
+then follows from Theorem~\ref{thm:midpoint}. For $a=b$, the speed
+is constant, so the midpoint rule is exact.
+\end{proof}
+\begin{remark}[Computational versus geometric correction]
+The normalization uses an evaluation of $\sin(\pi/N)$ and a division;
+it is not asserted to be a straightedge-and-compass operation. It
+removes the entire sinc-related algebraic error exactly, rather than
+merely cancelling finitely many powers of $N^{-2}$. Its advantage is
+asymptotic for each fixed $b/a>0$: if $N\rho_*$ is small, the remaining
+quadrature error may still be significant.
+\end{remark}
+
+\section{Complex singularities of the ellipse speed}
+
+Assume first that \(0<b<a\).  Consider
 \[
+F(z)=a^2\sin^2z+b^2\cos^2z.
+\]
+The complex zeros of \(F\) determine the obstruction to analytic
+continuation of the branch of \(\sqrt{F}\) that equals \(v\) on the
+real axis.
+
+\begin{theorem}[Nearest complex singularity distance]
+\label{thm:strip}
+Let \(0<b<a\) and define
+\begin{equation}
+\label{eq:rhostar}
+\boxed{
+\rho_*=
+\operatorname{artanh}\!\left(\frac ba\right)
+=
+\frac12\log\!\left(\frac{a+b}{a-b}\right).
+}
+\end{equation}
+Then \(F(z)\neq0\) throughout
+\[
+|\operatorname{Im}z|<\rho_*,
+\]
+and zeros occur on the boundary at
+\[
+z=n\pi\pm i\rho_*,
+\qquad n\in\mathbb Z.
+\]
+Consequently, the real-positive speed \(v\) extends to an analytic
+branch on every closed substrip
+\[
+|\operatorname{Im}z|\le\rho,
+\qquad 0<\rho<\rho_*.
+\]
+\end{theorem}
+
+\begin{proof}
+The equation \(F(z)=0\) is equivalent, whenever \(\cos z\neq0\), to
+\[
+a^2\tan^2z+b^2=0,
+\]
+hence
+\[
+\tan z=\pm i\frac ba.
+\]
+Using
+\[
+\tan(iy)=i\tanh y,
+\]
+we obtain the solutions
+\[
+z=n\pi\pm i\operatorname{artanh}\!\left(\frac ba\right),
+\qquad n\in\mathbb Z.
+\]
+No zero lies closer to the real axis.  Thus \(F\) is nonvanishing in
+the open strip \(|\operatorname{Im}z|<\rho_*\).  Because this strip is
+simply connected, the nonvanishing analytic function \(F\) admits an
+analytic square root there, uniquely fixed by requiring agreement with
+the positive real speed \(v\) on the real axis.
+\end{proof}
+
+\begin{remark}[Circle case]
+If \(a=b=R\), then \(v(\theta)\equiv R\) is entire and
+\(M_N=P=2\pi R\) exactly.  The formula \(\rho_*=\operatorname{artanh}(b/a)\)
+is then interpreted as the limiting value \(+\infty\).
+\end{remark}
+
+\section{Periodic midpoint quadrature}
+
+For the ellipse speed, periodicity and continuity on each closed substrip
+$|\operatorname{Im}z|\le\rho<\rho_*$ imply the finite bound $B_\rho$
+used below.\par
+
+We now give a self-contained Fourier proof of the exponential midpoint
+remainder.  This avoids requiring a boundary estimate at the singular
+lines \(|\operatorname{Im}z|=\rho_*\).
+
+\begin{lemma}[Fourier coefficient decay]
+\label{lem:fourierdecay}
+Let \(f\) be \(2\pi\)-periodic and analytic in
+\(|\operatorname{Im}z|<\rho_*\).  Fix \(0<\rho<\rho_*\), and suppose
+\(f\) is bounded on \(|\operatorname{Im}z|\le\rho\) by \(B_\rho\).
+If
+\[
+\widehat f_k
+=
+\frac1{2\pi}\int_0^{2\pi}f(\theta)e^{-ik\theta}\,\dd\theta,
+\]
+then
+\[
+|\widehat f_k|
+\le
+B_\rho e^{-\rho|k|}.
+\]
+\end{lemma}
+
+\begin{proof}
+For \(k>0\), shift the contour from the real axis to
+\(\operatorname{Im}z=-\rho\); periodicity cancels the vertical sides.
+Then
+\[
+\widehat f_k
+=
+\frac1{2\pi}
+\int_0^{2\pi}
+f(\theta-i\rho)e^{-ik(\theta-i\rho)}\,\dd\theta,
+\]
+so
+\[
+|\widehat f_k|\le B_\rho e^{-k\rho}.
+\]
+For \(k<0\), shift instead to \(\operatorname{Im}z=+\rho\).
+The case \(k=0\) is immediate.
+\end{proof}
+
+\begin{theorem}[Exponential midpoint remainder]
+\label{thm:midpoint}
+For every fixed ellipse \(0<b<a\) and every
+\(0<\rho<\rho_*\),
+\begin{equation}
+\label{eq:miderror}
+\boxed{
+M_N-P=O(e^{-\rho N}).
+}
+\end{equation}
+The implied constant may depend on \(a,b,\rho\), but not on \(N\).
+\end{theorem}
+
+\begin{proof}
+Write the Fourier series
+\[
+v(\theta)=\sum_{k\in\mathbb Z}\widehat v_k e^{ik\theta}.
+\]
+By Lemma~\ref{lem:fourierdecay}, the series converges absolutely on the
+real axis.  Since
+\[
+P=2\pi\widehat v_0,
+\]
+and the midpoint nodes are
+\[
+\theta_j^*=\frac{2\pi}{N}\left(j+\frac12\right),
+\]
+we have
+\begin{align*}
+M_N
+&=
+\frac{2\pi}{N}
+\sum_{j=0}^{N-1}
+\sum_{k\in\mathbb Z}
+\widehat v_k e^{ik\theta_j^*} \\
+&=
+2\pi
+\sum_{m\in\mathbb Z}
+(-1)^m\widehat v_{mN},
+\end{align*}
+because the discrete sum vanishes unless \(k\) is a multiple of \(N\),
+and
+\[
+e^{i(mN)\pi/N}=(-1)^m.
+\]
+Therefore
+\[
+M_N-P
+=
+2\pi
+\sum_{m\ne0}
+(-1)^m\widehat v_{mN}.
+\]
+For fixed \(0<\rho<\rho_*\), Lemma~\ref{lem:fourierdecay} gives
+\[
+|M_N-P|
+\le
+4\pi B_\rho
+\sum_{m=1}^{\infty}e^{-\rho mN}
+=
+4\pi B_\rho
+\frac{e^{-\rho N}}{1-e^{-\rho N}},
+\]
+which proves \eqref{eq:miderror}.
+\end{proof}
+
+\begin{proposition}[Parity-refined aliasing of the midpoint rule]
+\label{prop:parity}
+Let $0<b<a$. For every $0<\rho<\rho_*$ the sinc-normalized
+perimeter satisfies
+\begin{equation}\label{eq:parity-bound}
+\widetilde P_N-P=\begin{cases}
+O(e^{-\rho N}),&N\text{ even},\\
+O(e^{-2\rho N}),&N\text{ odd}.
+\end{cases}
+\end{equation}
+The implied constants may depend on $a,b,\rho$ but not on $N$.
+\end{proposition}
+\begin{proof}
+The speed has period $\pi$, so $v(\theta+\pi)=v(\theta)$ and
+$\widehat v_k=(-1)^k\widehat v_k$. Hence $\widehat v_k=0$
+for all odd $k$. The midpoint aliasing identity established in the
+proof of Theorem~\ref{thm:midpoint} is
+\[
+M_N-P=2\pi\sum_{m\ne0}(-1)^m\widehat v_{mN}.
+\]
+If $N$ is even, the first potentially nonzero terms have $m=\pm1$;
+if $N$ is odd, $m$ must be even, so the first potentially nonzero
+terms have $m=\pm2$. For every $0<\rho<\rho_*$ the coefficient
+bound $|\widehat v_k|\le B_\rho e^{-\rho|k|}$ implies, respectively,
+\[
+|M_N-P|\le\frac{4\pi B_\rho e^{-\rho N}}
+{1-e^{-\rho N}}\quad(N\text{ even}),
+\]
+\[
+|M_N-P|\le\frac{4\pi B_\rho e^{-2\rho N}}
+{1-e^{-2\rho N}}\quad(N\text{ odd}).
+\]
+Use $M_N=\widetilde P_N$ to finish.
+\end{proof}
+\begin{remark}[Interpretation of the doubled rate]
+The exponent is doubled at odd $N$ because the $\pi$-periodic speed
+has only even Fourier harmonics. The estimates hold for every strict
+substrip $\rho<\rho_*$; they do not assert a pure exponential
+leading asymptotic exactly at the branch-point boundary. Odd $N$
+can therefore be especially effective once $N\rho_*$ is large,
+although no universal advantage at small $N$ is claimed.
+\end{remark}
+
+\section{Universal relative-error expansion}
+
+The exact geometry and exponential quadrature estimate now combine.
+
+\begin{theorem}[Universal finite-order relative-error expansion]
+\label{thm:universal}
+Fix \(a\ge b>0\).  If \(0<b<a\), choose any
+\(0<\rho<\rho_*\); if \(a=b\), omit the exponential term below.
+Then for every fixed integer \(r\ge1\),
+\begin{equation}
+\label{eq:universal}
+\boxed{
+\frac{P-P_N}{P}
+=
+\sum_{k=1}^{r}
+(-1)^{k+1}
+\frac{\pi^{2k}}{(2k+1)!N^{2k}}
++
+O(N^{-2r-2})
++
+O(e^{-\rho N}).
+}
+\end{equation}
+In particular, every algebraic coefficient is independent of \(a\)
+and \(b\).
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:factorization},
+\[
+\frac{P_N}{P}
+=
+\sinc\!\left(\frac{\pi}{N}\right)
+\frac{M_N}{P}.
+\]
+For \(0<b<a\), Theorem~\ref{thm:midpoint} yields
+\[
+\frac{M_N}{P}
+=
+1+O(e^{-\rho N}).
+\]
+Since \(\sinc(\pi/N)\) is bounded,
+\[
+\frac{P_N}{P}
+=
+\sinc\!\left(\frac{\pi}{N}\right)
++
+O(e^{-\rho N}).
+\]
+Now
+\[
+\sinc x
+=
+\sum_{k=0}^{r}
+(-1)^k\frac{x^{2k}}{(2k+1)!}
++
+O(x^{2r+2})
+\qquad (x\to0).
+\]
+Substituting \(x=\pi/N\), subtracting from \(1\), and collecting terms
+gives \eqref{eq:universal}.  In the circle case, \(M_N=P\) exactly, so
+the same algebraic expansion follows without an exponential remainder.
+\end{proof}
+
+The first few terms are
+\begin{equation}
+\label{eq:firstterms}
+\frac{P-P_N}{P}
+=
+\frac{\pi^2}{6N^2}
+-\frac{\pi^4}{120N^4}
++\frac{\pi^6}{5040N^6}
+-\frac{\pi^8}{362880N^8}
++O(N^{-10})
++O(e^{-\rho N}).
+\end{equation}
+
+\begin{corollary}[Universal leading constant]
+\label{cor:leading}
+For every fixed ellipse \(a\ge b>0\),
+\begin{equation}
+\boxed{
+\lim_{N\to\infty}
+N^2\frac{P-P_N}{P}
+=
+\frac{\pi^2}{6}.
+}
+\end{equation}
+\end{corollary}
+
+\begin{corollary}[Universal second coefficient]
+For every fixed ellipse \(a\ge b>0\),
+\[
+\lim_{N\to\infty}
+N^4
+\left[
+\frac{P-P_N}{P}
+-\frac{\pi^2}{6N^2}
+\right]
+=
+-\frac{\pi^4}{120}.
+\]
+\end{corollary}
+
+\section{Shape dependence and asymptotic onset}
+
+Theorems~\ref{thm:factorization} and~\ref{thm:universal} separate the
+two roles played by geometry.
+The algebraic coefficients arise entirely from the universal chord
+factor
+\[
+\sinc\!\left(\frac{\pi}{N}\right),
+\]
+whereas the ellipse shape enters through the midpoint remainder.
+
+For \(0<b<a\),
+\[
+\rho_*=
+\operatorname{artanh}\!\left(\frac ba\right)
+\]
+is the distance to the nearest complex zero of
+\(a^2\sin^2z+b^2\cos^2z\).  As \(b/a\downarrow0\),
+\[
+\rho_*\downarrow0.
+\]
+Thus highly eccentric ellipses possess a narrower strip of analyticity,
+and the exponentially small midpoint contribution becomes visible over
+a longer pre-asymptotic range.
+
+This yields the structural interpretation
+\[
+\boxed{
+\text{universal algebraic coefficients}
+\quad+\quad
+\text{shape-dependent exponential onset}.
+}
+\]
+No explicit finite-\(N\) onset threshold is claimed here.
+
+\section{Classical Richardson cancellation as a corollary}
+
+We now illustrate how the universal expansion may be used by a standard
+extrapolation step.  This section is deliberately secondary: the
+cancellation method is classical, while Theorem~\ref{thm:universal}
+supplies the geometric expansion to which it is applied.
+
+\begin{corollary}[Scale-\(3\) Richardson cancellation]
+\label{cor:richardson}
+Define
+\begin{equation}
+\label{eq:rich}
 \widehat P_N
 =
-P_{3N}
-+
-\frac{P_{3N}-P_N}{8}
-=
 \frac{9P_{3N}-P_N}{8}.
-\]
-
-\begin{corollary}[Fourth-order corrected law]\label{cor:corrected}
-For every fixed nondegenerate ellipse and every $0<\rho<\rho_*$,
-\[
-P-\widehat P_N
+\end{equation}
+Then, for every fixed \(0<b<a\) and every \(0<\rho<\rho_*\),
+\begin{equation}
+\label{eq:richerror}
+\boxed{
+\frac{P-\widehat P_N}{P}
 =
-\frac{P\pi^4}{1080N^4}
+\frac{\pi^4}{1080N^4}
 -
-\frac{P\pi^6}{40824N^6}
+\frac{\pi^6}{40824N^6}
 +
 O(N^{-8})
 +
 O(e^{-\rho N}).
-\]
-Hence
-\[
-\frac{P-P_{3N}}{P-P_N}\longrightarrow\frac19,
-\qquad
-\frac{P-\widehat P_{3N}}{P-\widehat P_N}
-\longrightarrow\frac1{81}.
-\]
+}
+\end{equation}
+For a circle the exponential term is absent.
 \end{corollary}
 
 \begin{proof}
-Apply the expansion in Theorem~\ref{thm:main} at $N$ and $3N$ and form
-$(9P_{3N}-P_N)/8$.  The $N^{-2}$ term cancels.  The $N^{-4}$ coefficient is
-$-P\pi^4/1080$ in $\widehat P_N-P$, and the next coefficient is
-$P\pi^6/40824$.  The ratio limits follow from the leading nonzero terms.
+Write
+\[
+E_N=\frac{P-P_N}{P}
+=
+\frac{A}{N^2}
++\frac{B}{N^4}
++\frac{C}{N^6}
++O(N^{-8})
++O(e^{-\rho N}),
+\]
+where
+\[
+A=\frac{\pi^2}{6},
+\qquad
+B=-\frac{\pi^4}{120},
+\qquad
+C=\frac{\pi^6}{5040}.
+\]
+From \eqref{eq:rich},
+\[
+\frac{P-\widehat P_N}{P}
+=
+\frac{9E_{3N}-E_N}{8}.
+\]
+The \(N^{-2}\) term cancels exactly.  The remaining coefficients are
+\[
+-\frac{B}{9}
+=
+\frac{\pi^4}{1080}
+\]
+and
+\[
+-\frac{10C}{81}
+=
+-\frac{\pi^6}{40824}.
+\]
+The exponential contribution remains exponentially small.
 \end{proof}
 
-This is a Richardson-type fixed-scale cancellation.  It does not require
-knowledge of the perimeter or of the leading coefficient; only the known
-scale factor $3^{-2}$ is used.
+\section{Numerical illustrations}
 
-\section{Eccentricity and the asymptotic onset}
-
-The algebraic coefficients in Theorem~\ref{thm:main} are independent of
-eccentricity, but the exponentially small midpoint remainder is not.  Its
-natural strip width is
-\[
-\rho_*=\operatorname{artanh}(b/a).
-\]
-For a highly eccentric ellipse,
-\[
-\operatorname{artanh}(b/a)
-\sim
-\frac ba
-\qquad
-(b/a\to0).
-\]
-Thus suppressing the quadrature remainder to a fixed tolerance requires,
-at the level of exponential order,
-\[
-N
-\gtrsim
-\frac{\log(1/\varepsilon)}{\operatorname{artanh}(b/a)}
-\sim
-\frac ab\log\frac1\varepsilon.
-\]
-This explains an empirical inverse-axis-ratio scaling without asserting a
-universal finite-$N$ threshold.  The degenerate case $b=0$ is excluded:
-there the speed becomes $a|\sin t|$, analyticity is lost, and the remainder
-is no longer exponentially small.
-
-Ignoring the exponential transient, the leading relative-error design
-estimates are
-\[
-N_{\mathrm{raw}}
-\approx
-\frac{\pi}{\sqrt{6\varepsilon}},
-\qquad
-N_{\mathrm{corr}}
-\approx
-\left(
-\frac{\pi^4}{1080\varepsilon}
-\right)^{1/4}.
-\]
-They should be used only after $N\operatorname{artanh}(b/a)$ is sufficiently
-large.
-
-\section{Numerical verification}
-
-The accompanying script evaluates the exact perimeter using the complete
-elliptic integral and computes the polygonal sums directly at high precision.
-Table~\ref{tab:numerics} displays the normalized quantities predicted by the
-theory.
+The following computations are illustrations of the proved limits, not
+substitutes for the proofs.  The semimajor axis is normalized to
+\(a=1\), the exact perimeter is evaluated through the complete elliptic
+integral, and \(P_N\) is evaluated from Theorem~\ref{thm:factorization}.
 
 \begin{table}[ht]
 \centering
-\small
-\begin{tabular}{rrrrr}
+\caption{Scaled raw and Richardson-corrected errors for four axis ratios.}
+\label{tab:numerics}
+\begin{tabular}{@{}rrrr@{}}
 \toprule
-$b/a$ & $N$ & $N\rho_*$ &
-$N^2(P-P_N)/P$ &
-$N^4(P-\widehat P_N)/P$ \\
+\(b/a\) & \(N\) &
+\(N^2(P-P_N)/P\) &
+\(N^4(P-\widehat P_N)/P\) \\
 \midrule
-$0.90$ & $162$   & $238.46$ & $1.6449031365$ & $0.0901927055$ \\
-$0.50$ & $486$   & $266.98$ & $1.6449306301$ & $0.0901935031$ \\
-$0.10$ & $1458$  & $146.29$ & $1.6449336850$ & $0.0901935917$ \\
-$0.01$ & $13122$ & $131.22$ & $1.6449340621$ & $0.0901936027$ \\
+0.90 & 162   & 1.6449031365344 & 0.0901927054810 \\
+0.50 & 486   & 1.6449306301193 & 0.0901935031057 \\
+0.10 & 1458  & 1.6449336849891 & 0.0901935917311 \\
+0.01 & 13122 & 1.6449340621339 & 0.0901936026725 \\
 \midrule
-Limit & -- & -- & $\pi^2/6=1.6449340668$ &
-$\pi^4/1080=0.0901936028$ \\
+Limit & --- &
+\(\pi^2/6=1.6449340668482\) &
+\(\pi^4/1080=0.0901936028093\) \\
 \bottomrule
 \end{tabular}
-\caption{Scaled relative errors for four axis ratios.  The differing values
-of $N$ place each case well inside its analytic asymptotic regime.}
-\label{tab:numerics}
 \end{table}
 
-The data confirm two separate conclusions: the algebraic limiting constants
-are universal, while increasingly eccentric ellipses require larger $N$ to
-make the exponentially small quadrature remainder negligible.
+The increasing values of \(N\) used at smaller \(b/a\) reflect the
+shrinking analyticity width \(\rho_*\).  The limiting constants
+themselves do not change with shape.
 
-\section{Scope and relationship to geometric N-series refinement}
+\subsection{Sinc correction and the parity advantage}
 
-This theorem supplies an exact ellipse-specific foundation for the
-even-power assumption used in fixed-scale N-series acceleration.  It is
-compatible with the general scaling-cancellation principle, but it does not
-assert that every chord-based construction on every smooth curve has the
-same coefficients.
+The sinc normalization uses a single polygon. In contrast, the
+scale-three Richardson estimate $\widehat P_N$ in
+Corollary~\ref{cor:richardson} combines two polygon perimeters.
+Table~\ref{tab:sinc-parity} illustrates the exponential gain. For the
+sinc columns, errors are $|\widetilde P_N-P|/P$; values are computed
+with $a=1$ and the elliptic-integral reference
+$P=4E(1-b^2/a^2)$.
+\begin{table}[ht]
+\centering
+\caption{Parity effect on the sinc-normalized polygon, $b/a=0.1$.}
+\label{tab:sinc-parity}
+\begin{tabular}{@{}rrl@{}}
+\toprule
+$N$ & Parity & Relative error of $\widetilde P_N$\\
+\midrule
+95 & odd & $1.6\times10^{-12}$\\
+96 & even & $5.6\times10^{-8}$\\
+479 & odd & $4.8\times10^{-47}$\\
+480 & even & $9.1\times10^{-26}$\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-The result is also distinct from nonlinear geometric residual iteration.
-Here the active variable is the resolution scale $N^{-1}$, and a linear
-combination of fixed-resolution approximants raises the algebraic order from
-two to four.
+These results favor sinc normalization when the objective is a
+numerical perimeter estimate in the resolved quadrature regime.
+They do not imply superiority to optimized direct algorithms for
+complete elliptic integrals, and they do not replace the geometric
+motivation for studying the scale-three extrapolation.
 
-\section{Limitations}
+\section{Extensions and open questions}
 
-The conclusions apply to:
+The exact factorization in Theorem~\ref{thm:factorization} relies on the
+specific trigonometric parametrization of the ellipse.  Several natural
+questions remain.
 
-\begin{itemize}
-\item nondegenerate ellipses with $a\ge b>0$;
-\item the standard polygon obtained from equal increments of the ellipse
-parameter;
-\item the asymptotic regime $N\to\infty$ for fixed axis ratio.
-\end{itemize}
+First, one may ask which other parametrized closed curves admit an
+exact decomposition of chord lengths into a universal mesh factor and
+a sampled local speed or related geometric density.  Second, the
+boundary singularities at \(|\operatorname{Im}z|=\rho_*\) have a
+square-root character; a sharper singularity analysis may yield a
+more precise asymptotic form than the deliberately conservative
+\(O(e^{-\rho N})\) estimate for \(\rho<\rho_*\).  Third, the behavior of
+the approximation in simultaneous limits \(N\to\infty\) and \(b/a\to0\)
+is not covered by the fixed-shape theorem proved here.
 
-They do not claim:
+No claim is made here concerning arbitrary spherical domains, modular
+transformations, or a general equivalence between geometric scale
+cancellation and other acceleration mechanisms.
 
-\begin{itemize}
-\item uniform exponential constants as $b/a\to0$;
-\item the same sinc factorization for arbitrary parameterizations or meshes;
-\item numerical superiority over direct elliptic-integral algorithms;
-\item a universal theorem for all smooth closed curves without additional
-hypotheses.
-\end{itemize}
+\subsection{Numerical evidence for a sharper midpoint asymptotic}
+\label{sec:sharp-conjecture}
 
-\section{Conclusion}
+For fixed $0<b<a$, write $\rho_*=\operatorname{artanh}(b/a)$ and
+$C(a,b)=4\sqrt{2\pi ab}$.  The nearest zeros of the squared speed are
+simple and give square-root branch points for $v$.  A Darboux-type
+analysis therefore suggests the \emph{conjectural} leading laws
+\begin{align}
+ M_N-P &\sim C(a,b)N^{-3/2}e^{-\rho_*N}, &&N\ \text{even},\label{eq:sharp-even}\\
+ M_N-P &\sim -C(a,b)(2N)^{-3/2}e^{-2\rho_*N},&&N\ \text{odd}.\label{eq:sharp-odd}
+\end{align}
+The parity change is consistent with the exact aliasing identity and
+vanishing of the odd Fourier modes: for odd $N$, the first nonzero alias
+occurs at frequency $2N$ with a positive midpoint phase, whereas for
+even $N$ it occurs at frequency $N$ with a negative midpoint phase.
+These expressions are \emph{not} asserted as proved asymptotics here.
 
-The standard equal-parameter polygonal approximation of an ellipse satisfies
-an exact factorization:
+\begin{table}[ht]\centering\small
+\caption{AI-assisted 120-decimal-digit diagnostic for the conjectured
+even-$N$ leading constant. The scaled quantity is
+$(M_N-P)N^{3/2}e^{\rho_*N}$, with $a=1$.}
+\label{tab:sharp-evidence}
+\begin{tabular}{@{}lrrrrr@{}}\toprule
+$b/a$ & $N=20$ & $N=40$ & $N=80$ & $N=160$ & $C(1,b)$\\\midrule
+$0.5$ & 7.43 & 7.26 & 7.17 & 7.13 & 7.090\\
+$0.2$ & 4.88 & 4.70 & 4.59 & 4.54 & 4.484\\\bottomrule
+\end{tabular}
+\end{table}
+A separate AI-assisted calculation reported odd-$N$ scaled values near
+$-7.25,-7.17,-7.13$ at $N=21,41,81$ with $b/a=0.5$, compared with
+$-C(1,0.5)=-7.090\ldots$.  Establishing these estimates with a
+rigorous branch-point contour analysis, including remainder control,
+remains open.
+
+\section{Reproducibility appendix}
+
+The numerical entries in Table~\ref{tab:numerics} can be reproduced
+without numerical differencing of adjacent ellipse points.  For
+\(a=1\) and a chosen \(b\), evaluate
 \[
-P_N
+P=4E(1-b^2),
+\]
+then compute
+\[
+M_N
 =
-\sinc\!\left(\frac{\pi}{N}\right)M_N.
+\frac{2\pi}{N}
+\sum_{j=0}^{N-1}
+\sqrt{
+\sin^2\!\left(\left(j+\frac12\right)\frac{2\pi}{N}\right)
++
+b^2
+\cos^2\!\left(\left(j+\frac12\right)\frac{2\pi}{N}\right)
+},
 \]
-For every fixed nondegenerate ellipse, periodic analytic quadrature makes
-$M_N-P$ exponentially small.  The full algebraic error hierarchy therefore
-comes from the universal sinc factor, giving relative coefficients that are
-independent of the ellipse axes.
-
-A single tripling-based cancellation removes the inverse-square term and
-produces fourth-order accuracy:
+followed by
 \[
-P-\widehat P_N
-\sim
-\frac{P\pi^4}{1080N^4}.
+P_N=\sinc\!\left(\frac{\pi}{N}\right)M_N,
+\qquad
+\widehat P_N=\frac{9P_{3N}-P_N}{8}.
 \]
-Eccentricity controls not the algebraic coefficients but the onset of the
-asymptotic regime through the strip width
-$\operatorname{artanh}(b/a)$.  This separation gives a rigorous and
-transparent scaling law for ellipse-perimeter N-series refinement.
+High precision should be used when the corrected error is small.
 
-\begin{thebibliography}{9}
+The companion verification procedures can perform these computations
+using arbitrary-precision arithmetic. The sharp-asymptotic diagnostic
+uses the explicit midpoint sum with 120-digit working precision.
 
-\bibitem{RichardsonGaunt1927}
-L.~F. Richardson and J.~A. Gaunt,
-``The Deferred Approach to the Limit. Part I. Single Lattice.
-Part II. Interpenetrating Lattices,''
-\emph{Philosophical Transactions of the Royal Society of London, Series A},
-226 (1927), 299--361.
 
-\bibitem{TrefethenWeideman2014}
-L.~N. Trefethen and J.~A.~C. Weideman,
-``The Exponentially Convergent Trapezoidal Rule,''
-\emph{SIAM Review} 56 (2014), no.~3, 385--458.
+\section*{Data and software availability}
 
-\bibitem{Borwein1987}
-J.~M. Borwein and P.~B. Borwein,
-\emph{Pi and the AGM: A Study in Analytic Number Theory and Computational
-Complexity},
-Wiley, 1987.
+No external dataset is required for the theoretical results.  The
+numerical values reported in the paper are reproducible from the
+explicit formulas stated in the manuscript and the companion
+verification script retained with the submission materials.
 
-\bibitem{BakerScaling2026}
-W.~Baker,
-\emph{A Scaling--Cancellation Principle for Chord-Based Geometric
-Approximations},
-preprint, 2026.
+\section*{Acknowledgements and disclosure of AI-assisted tools}
+
+The author used OpenAI's ChatGPT for editorial drafting, symbolic
+and numerical cross-checking, code assistance, and manuscript preparation.
+Anthropic's Claude also supplied an independent AI-assisted critique,
+including the numerical values in Table~\ref{tab:sharp-evidence} and
+the earlier parity check (Table~\ref{tab:sinc-parity}); those displayed
+values are attributed to that AI-assisted calculation and not represented
+as a fresh independent author-side run.  All mathematical claims,
+derivations, computations, references, and final wording remain the
+author's responsibility.  No AI system is listed as an author.
+
+\begin{thebibliography}{99}
+
+\bibitem[Donaldson and Elliott(1972)]{DonaldsonElliott1972}
+Donaldson, J.~D. \& Elliott, D. (1972)
+A unified approach to quadrature rules with asymptotic estimates of their remainders.
+\emph{SIAM J. Numer. Anal.}, \textbf{9}(4), 573--602.
+\url{https://doi.org/10.1137/0709051}.
+
+\bibitem[Javed and Trefethen(2014)]{JavedTrefethen2014}
+Javed, M. \& Trefethen, L.~N. (2014)
+A trapezoidal rule error bound unifying the Euler--Maclaurin formula
+and geometric convergence for periodic functions.
+\emph{Proc. R. Soc. A}, \textbf{470}, 20130571.
+\url{https://doi.org/10.1098/rspa.2013.0571}.
+
+\bibitem[Davis and Rabinowitz(1984)]{DavisRabinowitz1984}
+Davis, P.~J. \& Rabinowitz, P. (1984)
+\emph{Methods of Numerical Integration}, 2nd edn.
+Orlando, FL: Academic Press.
+
+\bibitem[Ivory(1798)]{Ivory1798}
+Ivory, J. (1798)
+A new series for the rectification of the ellipsis; together with some
+observations on the evolution of the formula
+\((a^2+b^2-2ab\cos\theta)^n\).
+\emph{Trans. R. Soc. Edinb.}, \textbf{4}, 177--190.
+
+\bibitem[Trefethen and Weideman(2014)]{TrefethenWeideman2014}
+Trefethen, L.~N. \& Weideman, J.~A.~C. (2014)
+The exponentially convergent trapezoidal rule.
+\emph{SIAM Rev.}, \textbf{56}, 385--458.
+
+\bibitem[Villarino(2006)]{Villarino2006}
+Villarino, M.~B. (2006)
+A note on the accuracy of Ramanujan's approximative formula for the
+perimeter of an ellipse.
+\emph{J. Inequal. Pure Appl. Math.}, \textbf{7}, Article 21.
 
 \end{thebibliography}
 
