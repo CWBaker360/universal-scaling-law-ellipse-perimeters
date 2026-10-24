@@ -1,0 +1,64 @@
+name: Audit archived SHA-256 manifest
+on:
+  push:
+    paths:
+      - 'paper/**'
+      - 'scripts/**'
+      - 'output/**'
+      - 'outputs/**'
+      - 'SHA256SUMS.txt'
+      - '.github/workflows/audit-checksums.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checksum-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit recorded hashes without modifying the archive
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          manifest = Path('SHA256SUMS.txt')
+          lines = manifest.read_text(encoding='utf-8').splitlines()
+          critical = []
+          metadata = []
+          matched = 0
+          for line in lines:
+              if not line.strip() or line.lstrip().startswith('#'):
+                  continue
+              h, sep, name = line.partition('  ')
+              if not sep or len(h) != 64 or any(ch not in '0123456789abcdefABCDEF' for ch in h):
+                  critical.append(('malformed entry', line))
+                  continue
+              name = name.lstrip('*')
+              p = Path(name)
+              if p.is_absolute() or '..' in p.parts:
+                  critical.append(('unsafe path', name))
+                  continue
+              if not p.is_file():
+                  issue = ('missing file', name)
+              else:
+                  actual = hashlib.sha256(p.read_bytes()).hexdigest()
+                  issue = None if actual.lower() == h.lower() else ('hash mismatch', name)
+              if issue is None:
+                  matched += 1
+              elif p.suffix.lower() != '.md' and p.parts and p.parts[0] in ('paper', 'scripts', 'output', 'outputs'):
+                  critical.append(issue)
+              else:
+                  metadata.append(issue)
+          print(f'Matched manifest entries: {matched}')
+          print(f'Historical documentation/metadata deviations: {len(metadata)}')
+          for kind, path in metadata:
+              print(f'NOTICE: {kind}: {path}')
+          print(f'Scientific files / manifest errors: {len(critical)}')
+          for kind, path in critical:
+              print(f'ERROR: {kind}: {path}')
+          if critical:
+              raise SystemExit(1)
+          PY
