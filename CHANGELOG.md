@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.3 — 2026-10-24
+
+- Replaced reviewed manuscript TeX and compiled PDF.
+- Distinguished the conjectural sharper Darboux-type remainder from proved ellipse sinc factorization and universal algebraic asymptotics.
+- Removed unfinished author contact placeholder.
+- Preserved prior v1.2 repository state under `pre-v1.3-backup`.
+- Prior Zenodo deposits remain unchanged.
+
+
 ## revised-preprint-v1.2 — 2026-09-29
 
 - Corrected the 1927 deferred-approach reference to credit both
