@@ -1,0 +1,26 @@
+name: Prepare refreshed SHA-256 manifest
+on:
+  push:
+    paths:
+      - '.github/workflows/prepare-checksums.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Print manifest computed from checked-out files
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          print('BEGIN_CURRENT_SHA256SUMS')
+          for p in sorted(Path('.').rglob('*')):
+              if not p.is_file() or '.git' in p.parts or p.name == 'SHA256SUMS.txt':
+                  continue
+              print(f'{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.as_posix()}')
+          print('END_CURRENT_SHA256SUMS')
+          PY
